@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener API Dashboard</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        input[type="url"], input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.btn-danger {
+            background-color: var(--danger);
+        }
+
+        button.btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        button.btn-secondary {
+            background-color: #64748b;
+        }
+
+        button.btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .result-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            display: none;
+        }
+
+        .result-box.active {
+            display: block;
+        }
+
+        .result-box p {
+            font-size: 0.9rem;
+            word-break: break-all;
+            margin-bottom: 0.5rem;
+        }
+
+        .short-url-link {
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+
+        .short-url-link:hover {
+            text-decoration: underline;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 4px;
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            color: var(--danger);
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .alert-success {
+            background-color: #ecfdf5;
+            color: var(--success);
+            border: 1px solid #a7f3d0;
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>URL Shortener</h1>
+        <p>Shorten long URLs, test redirects, and monitor access analytics.</p>
+    </div>
+
+    <!-- Create Short URL Card -->
+    <div class="card">
+        <h2>🔗 Shorten a Long URL</h2>
+        <form id="shortenForm">
+            <div class="form-group">
+                <label for="longUrl">Destination URL</label>
+                <div class="input-group">
+                    <input type="url" id="longUrl" placeholder="https://example.com/some/long/url" required>
+                    <button type="submit">Shorten</button>
+                </div>
+            </div>
+        </form>
+
+        <div id="shortenResult" class="result-box">
+            <p>Short Code: <span id="resShortCode" class="badge"></span></p>
+            <p>Short URL (Click to Test Redirect):</p>
+            <p><a id="resShortUrl" href="#" target="_blank" class="short-url-link"></a></p>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
+                Original: <span id="resOriginalUrl"></span>
+            </p>
+        </div>
+        <div id="shortenAlert" class="alert"></div>
+    </div>
+
+    <!-- Lookup Stats Card -->
+    <div class="card">
+        <h2>📊 Short URL Statistics & Lookup</h2>
+        <form id="statsForm">
+            <div class="form-group">
+                <label for="searchCode">Short Code</label>
+                <div class="input-group">
+                    <input type="text" id="searchCode" placeholder="Enter 6-character short code (e.g. abc123)" required>
+                    <button type="submit" class="btn-secondary">Get Stats</button>
+                </div>
+            </div>
+        </form>
+
+        <div id="statsResult" class="result-box">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div id="statAccessCount" class="value">0</div>
+                    <div class="label">Access Count</div>
+                </div>
+                <div class="stat-card">
+                    <div id="statCode" class="value" style="font-size: 1.1rem;">-</div>
+                    <div class="label">Short Code</div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <p><strong>Original URL:</strong> <a id="statOriginalUrl" href="#" target="_blank"></a></p>
+                <p><strong>Created At:</strong> <span id="statCreatedAt"></span></p>
+                <p><strong>Updated At:</strong> <span id="statUpdatedAt"></span></p>
+            </div>
+        </div>
+        <div id="statsAlert" class="alert"></div>
+    </div>
+
+    <!-- Update & Delete Card -->
+    <div class="card">
+        <h2>⚙️ Manage Short Code</h2>
+        <div class="form-group">
+            <label for="manageCode">Target Short Code</label>
+            <input type="text" id="manageCode" placeholder="Enter short code to edit or delete">
+        </div>
+
+        <div class="form-group">
+            <label for="updateUrl">New Destination URL (For Update)</label>
+            <div class="input-group">
+                <input type="url" id="updateUrl" placeholder="https://example.com/new/destination">
+                <button id="btnUpdate" type="button">Update URL</button>
+                <button id="btnDelete" type="button" class="btn-danger">Delete</button>
+            </div>
+        </div>
+
+        <div id="manageAlert" class="alert"></div>
+    </div>
+</div>
+
+<script>
+    const baseUrl = window.location.origin;
+
+    // Shorten Form Submit
+    document.getElementById('shortenForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const urlInput = document.getElementById('longUrl').value.trim();
+        const alertBox = document.getElementById('shortenAlert');
+        const resultBox = document.getElementById('shortenResult');
+        alertBox.className = 'alert';
+        alertBox.style.display = 'none';
+        resultBox.classList.remove('active');
+
+        try {
+            const response = await fetch('/shorten', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: urlInput })
+            });
+            const data = await response.json();
+
+            if (response.status === 201) {
+                const fullShortUrl = `${baseUrl}/${data.shortCode}`;
+                document.getElementById('resShortCode').textContent = data.shortCode;
+                document.getElementById('resShortUrl').textContent = fullShortUrl;
+                document.getElementById('resShortUrl').href = fullShortUrl;
+                document.getElementById('resOriginalUrl').textContent = data.url;
+                resultBox.classList.add('active');
+            } else {
+                alertBox.textContent = data.message || 'Error creating short URL';
+                alertBox.className = 'alert alert-danger';
+            }
+        } catch (err) {
+            alertBox.textContent = 'Network or server error: ' + err.message;
+            alertBox.className = 'alert alert-danger';
+        }
+    });
+
+    // Stats Form Submit
+    document.getElementById('statsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = document.getElementById('searchCode').value.trim();
+        const alertBox = document.getElementById('statsAlert');
+        const resultBox = document.getElementById('statsResult');
+        alertBox.className = 'alert';
+        alertBox.style.display = 'none';
+        resultBox.classList.remove('active');
+
+        try {
+            const response = await fetch(`/shorten/${code}/stats`);
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('statAccessCount').textContent = data.accessCount;
+                document.getElementById('statCode').textContent = data.shortCode;
+                document.getElementById('statOriginalUrl').textContent = data.url;
+                document.getElementById('statOriginalUrl').href = data.url;
+                document.getElementById('statCreatedAt').textContent = new Date(data.createdAt).toLocaleString();
+                document.getElementById('statUpdatedAt').textContent = new Date(data.updatedAt).toLocaleString();
+                resultBox.classList.add('active');
+            } else {
+                alertBox.textContent = data.message || 'Short URL not found';
+                alertBox.className = 'alert alert-danger';
+            }
+        } catch (err) {
+            alertBox.textContent = 'Error fetching stats: ' + err.message;
+            alertBox.className = 'alert alert-danger';
+        }
+    });
+
+    // Update URL Click
+    document.getElementById('btnUpdate').addEventListener('click', async () => {
+        const code = document.getElementById('manageCode').value.trim();
+        const newUrl = document.getElementById('updateUrl').value.trim();
+        const alertBox = document.getElementById('manageAlert');
+        alertBox.className = 'alert';
+        alertBox.style.display = 'none';
+
+        if (!code || !newUrl) {
+            alertBox.textContent = 'Please provide both short code and new destination URL.';
+            alertBox.className = 'alert alert-danger';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/shorten/${code}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: newUrl })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                alertBox.textContent = `Successfully updated short code '${code}' to: ${data.url}`;
+                alertBox.className = 'alert alert-success';
+            } else {
+                alertBox.textContent = data.message || 'Failed to update short URL';
+                alertBox.className = 'alert alert-danger';
+            }
+        } catch (err) {
+            alertBox.textContent = 'Error updating URL: ' + err.message;
+            alertBox.className = 'alert alert-danger';
+        }
+    });
+
+    // Delete URL Click
+    document.getElementById('btnDelete').addEventListener('click', async () => {
+        const code = document.getElementById('manageCode').value.trim();
+        const alertBox = document.getElementById('manageAlert');
+        alertBox.className = 'alert';
+        alertBox.style.display = 'none';
+
+        if (!code) {
+            alertBox.textContent = 'Please provide short code to delete.';
+            alertBox.className = 'alert alert-danger';
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete short code '${code}'?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/shorten/${code}`, {
+                method: 'DELETE'
+            });
+
+            if (response.status === 204) {
+                alertBox.textContent = `Short code '${code}' deleted successfully.`;
+                alertBox.className = 'alert alert-success';
+            } else {
+                const data = await response.json().catch(() => ({}));
+                alertBox.textContent = data.message || 'Failed to delete short URL (not found)';
+                alertBox.className = 'alert alert-danger';
+            }
+        } catch (err) {
+            alertBox.textContent = 'Error deleting URL: ' + err.message;
+            alertBox.className = 'alert alert-danger';
+        }
+    });
+</script>
+
+</body>
+</html>
