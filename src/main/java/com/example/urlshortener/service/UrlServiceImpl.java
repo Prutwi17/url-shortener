@@ -73,8 +73,9 @@ public class UrlServiceImpl implements UrlService {
     }
 
     private Url findEntityByShortCode(String shortCode) {
-        return urlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new ResourceNotFoundException("Short URL not found for code: " + shortCode));
+        String cleanCode = shortCode != null ? shortCode.trim() : "";
+        return urlRepository.findByShortCode(cleanCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Short URL not found for code: " + cleanCode));
     }
 
     private String generateUniqueShortCode() {

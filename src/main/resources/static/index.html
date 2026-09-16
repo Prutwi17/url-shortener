@@ -368,10 +368,22 @@
         `;
     }
 
+    // Helper to ensure URL starts with http:// or https://
+    function ensureHttpPrefix(url) {
+        if (!url) return url;
+        const trimmed = url.trim();
+        const lower = trimmed.toLowerCase();
+        if (!lower.startsWith('http://') && !lower.startsWith('https://')) {
+            return 'https://' + trimmed;
+        }
+        return trimmed;
+    }
+
     // 1. Shorten Form Submission
     document.getElementById('shortenForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const urlInput = document.getElementById('inputLongUrl').value.trim();
+        let urlInput = document.getElementById('inputLongUrl').value.trim();
+        urlInput = ensureHttpPrefix(urlInput);
 
         try {
             const response = await fetch('/shorten', {
@@ -451,7 +463,8 @@
     // 3. Update URL Click
     document.getElementById('btnUpdate').addEventListener('click', async () => {
         const code = document.getElementById('inputManageCode').value.trim();
-        const newUrl = document.getElementById('inputUpdateUrl').value.trim();
+        let newUrl = document.getElementById('inputUpdateUrl').value.trim();
+        newUrl = ensureHttpPrefix(newUrl);
 
         if (!code || !newUrl) {
             alert('Please enter both Target Short Code and New Destination URL.');
