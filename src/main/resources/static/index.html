@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Shortener API Dashboard</title>
+    <title>URL Shortener API - Input & Output Dashboard</title>
     <style>
         :root {
             --primary: #4f46e5;
             --primary-hover: #4338ca;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
             --card-bg: #ffffff;
             --text: #0f172a;
             --text-muted: #64748b;
-            --border: #e2e8f0;
+            --border: #cbd5e1;
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
             --radius: 12px;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
@@ -23,7 +24,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
@@ -33,12 +34,12 @@
             padding: 2rem 1rem;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
         }
 
-        .container {
-            max-width: 800px;
+        .dashboard {
+            max-width: 1000px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -47,7 +48,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .header h1 {
@@ -56,7 +57,6 @@
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
         }
 
         .header p {
@@ -64,49 +64,67 @@
             font-size: 1rem;
         }
 
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 850px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 1.75rem;
+            padding: 1.5rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .card h2 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-            color: var(--text);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: space-between;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            gap: 0.4rem;
         }
 
         label {
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .input-group {
+        .input-row {
             display: flex;
             gap: 0.5rem;
         }
 
         input[type="url"], input[type="text"] {
             flex: 1;
-            padding: 0.75rem 1rem;
+            padding: 0.65rem 0.85rem;
             border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
 
         input:focus {
@@ -115,12 +133,12 @@
         }
 
         button {
-            padding: 0.75rem 1.5rem;
+            padding: 0.65rem 1.25rem;
             background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
@@ -130,217 +148,230 @@
             background-color: var(--primary-hover);
         }
 
+        button.btn-success {
+            background-color: var(--success);
+        }
+        button.btn-success:hover {
+            background-color: #059669;
+        }
+
         button.btn-danger {
             background-color: var(--danger);
         }
-
         button.btn-danger:hover {
             background-color: #dc2626;
         }
 
         button.btn-secondary {
-            background-color: #64748b;
-        }
-
-        button.btn-secondary:hover {
             background-color: #475569;
         }
-
-        .result-box {
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: #f1f5f9;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary);
-            display: none;
+        button.btn-secondary:hover {
+            background-color: #334155;
         }
 
-        .result-box.active {
-            display: block;
+        /* Dedicated Output Box Styling */
+        .output-card {
+            background: #ffffff;
+            border: 2px solid var(--primary);
         }
 
-        .result-box p {
-            font-size: 0.9rem;
-            word-break: break-all;
-            margin-bottom: 0.5rem;
-        }
-
-        .short-url-link {
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 1.1rem;
-        }
-
-        .short-url-link:hover {
-            text-decoration: underline;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 4px;
-            background-color: #e0e7ff;
-            color: var(--primary);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .stat-card {
+        .output-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             background: #f8fafc;
-            padding: 1rem;
+            padding: 0.75rem 1rem;
             border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 6px;
+            color: white;
+            background-color: var(--text-muted);
+        }
+
+        .status-201, .status-200, .status-204 {
+            background-color: var(--success);
+        }
+
+        .status-400, .status-404, .status-500 {
+            background-color: var(--danger);
+        }
+
+        .output-placeholder {
             text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .output-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .output-item {
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 8px;
             border: 1px solid var(--border);
         }
 
-        .stat-card .value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .stat-card .label {
+        .output-item .title {
             font-size: 0.75rem;
+            font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        .alert {
-            padding: 0.75rem 1rem;
+        .output-item .value {
+            font-size: 1rem;
+            font-weight: 600;
+            word-break: break-all;
+            color: var(--text);
+            margin-top: 0.2rem;
+        }
+
+        .link-highlight {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .link-highlight:hover {
+            text-decoration: underline;
+        }
+
+        pre.json-viewer {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 1rem;
             border-radius: 8px;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .alert-danger {
-            background-color: #fef2f2;
-            color: var(--danger);
-            border: 1px solid #fecaca;
-            display: block;
-        }
-
-        .alert-success {
-            background-color: #ecfdf5;
-            color: var(--success);
-            border: 1px solid #a7f3d0;
-            display: block;
-        }
-
-        @media (max-width: 640px) {
-            .input-group {
-                flex-direction: column;
-            }
+            font-family: monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="dashboard">
     <div class="header">
-        <h1>URL Shortener</h1>
-        <p>Shorten long URLs, test redirects, and monitor access analytics.</p>
+        <h1>URL Shortener API Dashboard</h1>
+        <p>Interactive Input Controls & Dedicated Live Output Results Panel</p>
     </div>
 
-    <!-- Create Short URL Card -->
-    <div class="card">
-        <h2>🔗 Shorten a Long URL</h2>
-        <form id="shortenForm">
-            <div class="form-group">
-                <label for="longUrl">Destination URL</label>
-                <div class="input-group">
-                    <input type="url" id="longUrl" placeholder="https://example.com/some/long/url" required>
-                    <button type="submit">Shorten</button>
+    <div class="grid-layout">
+        <!-- LEFT COLUMN: INPUT CONTROLS -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- 1. Create Short URL Card -->
+            <div class="card">
+                <h2><span>📥 1. Create Short URL</span> <span style="font-size: 0.75rem; color: var(--text-muted);">POST /shorten</span></h2>
+                <form id="shortenForm">
+                    <div class="form-group">
+                        <label for="inputLongUrl">Long Destination URL</label>
+                        <div class="input-row">
+                            <input type="url" id="inputLongUrl" placeholder="https://example.com/long/url" required>
+                            <button type="submit" class="btn-success">Shorten</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. Get Statistics & Lookup -->
+            <div class="card">
+                <h2><span>📊 2. Short URL Stats & Lookup</span> <span style="font-size: 0.75rem; color: var(--text-muted);">GET /shorten/{code}/stats</span></h2>
+                <form id="statsForm">
+                    <div class="form-group">
+                        <label for="inputStatsCode">Short Code</label>
+                        <div class="input-row">
+                            <input type="text" id="inputStatsCode" placeholder="Enter 6-char short code (e.g. abc123)" required>
+                            <button type="submit" class="btn-secondary">Get Stats</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 3. Update & Delete Short URL -->
+            <div class="card">
+                <h2><span>⚙️ 3. Update or Delete Short URL</span></h2>
+                <div class="form-group">
+                    <label for="inputManageCode">Target Short Code</label>
+                    <input type="text" id="inputManageCode" placeholder="Short Code (e.g. abc123)">
+                </div>
+                <div class="form-group">
+                    <label for="inputUpdateUrl">New Destination URL (For Update)</label>
+                    <input type="url" id="inputUpdateUrl" placeholder="https://example.com/new-url">
+                </div>
+                <div class="input-row" style="margin-top: 0.5rem;">
+                    <button id="btnUpdate" type="button" style="flex: 1;">Update (PUT)</button>
+                    <button id="btnDelete" type="button" class="btn-danger" style="flex: 1;">Delete (DELETE)</button>
                 </div>
             </div>
-        </form>
 
-        <div id="shortenResult" class="result-box">
-            <p>Short Code: <span id="resShortCode" class="badge"></span></p>
-            <p>Short URL (Click to Test Redirect):</p>
-            <p><a id="resShortUrl" href="#" target="_blank" class="short-url-link"></a></p>
-            <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">
-                Original: <span id="resOriginalUrl"></span>
-            </p>
         </div>
-        <div id="shortenAlert" class="alert"></div>
-    </div>
 
-    <!-- Lookup Stats Card -->
-    <div class="card">
-        <h2>📊 Short URL Statistics & Lookup</h2>
-        <form id="statsForm">
-            <div class="form-group">
-                <label for="searchCode">Short Code</label>
-                <div class="input-group">
-                    <input type="text" id="searchCode" placeholder="Enter 6-character short code (e.g. abc123)" required>
-                    <button type="submit" class="btn-secondary">Get Stats</button>
+        <!-- RIGHT COLUMN: DEDICATED OUTPUT PANEL -->
+        <div class="card output-card">
+            <h2><span>📤 DEDICATED OUTPUT PANEL</span> <span style="font-size: 0.75rem; color: var(--primary);">LIVE RESPONSE</span></h2>
+            
+            <div id="outputContainer">
+                <div class="output-placeholder">
+                    👈 Enter an input on the left and submit to view live API output & response payload here.
                 </div>
             </div>
-        </form>
-
-        <div id="statsResult" class="result-box">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div id="statAccessCount" class="value">0</div>
-                    <div class="label">Access Count</div>
-                </div>
-                <div class="stat-card">
-                    <div id="statCode" class="value" style="font-size: 1.1rem;">-</div>
-                    <div class="label">Short Code</div>
-                </div>
-            </div>
-            <div style="margin-top: 1rem;">
-                <p><strong>Original URL:</strong> <a id="statOriginalUrl" href="#" target="_blank"></a></p>
-                <p><strong>Created At:</strong> <span id="statCreatedAt"></span></p>
-                <p><strong>Updated At:</strong> <span id="statUpdatedAt"></span></p>
-            </div>
         </div>
-        <div id="statsAlert" class="alert"></div>
-    </div>
-
-    <!-- Update & Delete Card -->
-    <div class="card">
-        <h2>⚙️ Manage Short Code</h2>
-        <div class="form-group">
-            <label for="manageCode">Target Short Code</label>
-            <input type="text" id="manageCode" placeholder="Enter short code to edit or delete">
-        </div>
-
-        <div class="form-group">
-            <label for="updateUrl">New Destination URL (For Update)</label>
-            <div class="input-group">
-                <input type="url" id="updateUrl" placeholder="https://example.com/new/destination">
-                <button id="btnUpdate" type="button">Update URL</button>
-                <button id="btnDelete" type="button" class="btn-danger">Delete</button>
-            </div>
-        </div>
-
-        <div id="manageAlert" class="alert"></div>
     </div>
 </div>
 
 <script>
     const baseUrl = window.location.origin;
 
-    // Shorten Form Submit
+    // Helper to render output box
+    function renderOutput(actionName, status, statusText, dataJson, customDetailsHtml = '') {
+        const container = document.getElementById('outputContainer');
+        const isSuccess = status >= 200 && status < 300;
+        const statusClass = `status-${status}`;
+
+        const rawJsonString = JSON.stringify(dataJson, null, 2);
+
+        container.innerHTML = `
+            <div class="output-status-bar">
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">ACTION:</span>
+                    <strong style="font-size: 0.95rem; margin-left: 0.25rem;">${actionName}</strong>
+                </div>
+                <div class="status-badge ${statusClass}">
+                    ${status} ${statusText}
+                </div>
+            </div>
+
+            ${customDetailsHtml}
+
+            <div style="margin-top: 1rem;">
+                <label>Raw API JSON Response</label>
+                <pre class="json-viewer">${rawJsonString}</pre>
+            </div>
+        `;
+    }
+
+    // 1. Shorten Form Submission
     document.getElementById('shortenForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const urlInput = document.getElementById('longUrl').value.trim();
-        const alertBox = document.getElementById('shortenAlert');
-        const resultBox = document.getElementById('shortenResult');
-        alertBox.className = 'alert';
-        alertBox.style.display = 'none';
-        resultBox.classList.remove('active');
+        const urlInput = document.getElementById('inputLongUrl').value.trim();
 
         try {
             const response = await fetch('/shorten', {
@@ -352,64 +383,78 @@
 
             if (response.status === 201) {
                 const fullShortUrl = `${baseUrl}/${data.shortCode}`;
-                document.getElementById('resShortCode').textContent = data.shortCode;
-                document.getElementById('resShortUrl').textContent = fullShortUrl;
-                document.getElementById('resShortUrl').href = fullShortUrl;
-                document.getElementById('resOriginalUrl').textContent = data.url;
-                resultBox.classList.add('active');
+                const detailsHtml = `
+                    <div class="output-details">
+                        <div class="output-item" style="border-left: 4px solid var(--success);">
+                            <span class="title">Generated Short Link (Click to Redirect & Count Clicks)</span>
+                            <span class="value"><a href="${fullShortUrl}" target="_blank" class="link-highlight">${fullShortUrl}</a></span>
+                        </div>
+                        <div class="output-item">
+                            <span class="title">Short Code</span>
+                            <span class="value">${data.shortCode}</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="title">Original URL</span>
+                            <span class="value">${data.url}</span>
+                        </div>
+                    </div>
+                `;
+                renderOutput('Create Short URL (POST /shorten)', 201, 'Created', data, detailsHtml);
             } else {
-                alertBox.textContent = data.message || 'Error creating short URL';
-                alertBox.className = 'alert alert-danger';
+                renderOutput('Create Short URL (POST /shorten)', response.status, 'Bad Request', data);
             }
         } catch (err) {
-            alertBox.textContent = 'Network or server error: ' + err.message;
-            alertBox.className = 'alert alert-danger';
+            renderOutput('Create Short URL', 500, 'Error', { error: err.message });
         }
     });
 
-    // Stats Form Submit
+    // 2. Stats Form Submission
     document.getElementById('statsForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const code = document.getElementById('searchCode').value.trim();
-        const alertBox = document.getElementById('statsAlert');
-        const resultBox = document.getElementById('statsResult');
-        alertBox.className = 'alert';
-        alertBox.style.display = 'none';
-        resultBox.classList.remove('active');
+        const code = document.getElementById('inputStatsCode').value.trim();
 
         try {
             const response = await fetch(`/shorten/${code}/stats`);
             const data = await response.json();
 
             if (response.ok) {
-                document.getElementById('statAccessCount').textContent = data.accessCount;
-                document.getElementById('statCode').textContent = data.shortCode;
-                document.getElementById('statOriginalUrl').textContent = data.url;
-                document.getElementById('statOriginalUrl').href = data.url;
-                document.getElementById('statCreatedAt').textContent = new Date(data.createdAt).toLocaleString();
-                document.getElementById('statUpdatedAt').textContent = new Date(data.updatedAt).toLocaleString();
-                resultBox.classList.add('active');
+                const fullShortUrl = `${baseUrl}/${data.shortCode}`;
+                const detailsHtml = `
+                    <div class="output-details">
+                        <div class="output-item" style="background: #e0e7ff; border-color: #c7d2fe;">
+                            <span class="title">Total Access Count (Clicks)</span>
+                            <span class="value" style="font-size: 1.8rem; color: var(--primary); font-weight: 800;">${data.accessCount}</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="title">Short Link (Click to Test Redirect)</span>
+                            <span class="value"><a href="${fullShortUrl}" target="_blank" class="link-highlight">${fullShortUrl}</a></span>
+                        </div>
+                        <div class="output-item">
+                            <span class="title">Original URL</span>
+                            <span class="value">${data.url}</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="title">Created At / Updated At</span>
+                            <span class="value" style="font-size: 0.85rem;">Created: ${new Date(data.createdAt).toLocaleString()}<br>Updated: ${new Date(data.updatedAt).toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+                renderOutput(`Get Stats (GET /shorten/${code}/stats)`, 200, 'OK', data, detailsHtml);
             } else {
-                alertBox.textContent = data.message || 'Short URL not found';
-                alertBox.className = 'alert alert-danger';
+                renderOutput(`Get Stats (GET /shorten/${code}/stats)`, response.status, 'Not Found', data);
             }
         } catch (err) {
-            alertBox.textContent = 'Error fetching stats: ' + err.message;
-            alertBox.className = 'alert alert-danger';
+            renderOutput('Get Stats', 500, 'Error', { error: err.message });
         }
     });
 
-    // Update URL Click
+    // 3. Update URL Click
     document.getElementById('btnUpdate').addEventListener('click', async () => {
-        const code = document.getElementById('manageCode').value.trim();
-        const newUrl = document.getElementById('updateUrl').value.trim();
-        const alertBox = document.getElementById('manageAlert');
-        alertBox.className = 'alert';
-        alertBox.style.display = 'none';
+        const code = document.getElementById('inputManageCode').value.trim();
+        const newUrl = document.getElementById('inputUpdateUrl').value.trim();
 
         if (!code || !newUrl) {
-            alertBox.textContent = 'Please provide both short code and new destination URL.';
-            alertBox.className = 'alert alert-danger';
+            alert('Please enter both Target Short Code and New Destination URL.');
             return;
         }
 
@@ -422,28 +467,33 @@
             const data = await response.json();
 
             if (response.ok) {
-                alertBox.textContent = `Successfully updated short code '${code}' to: ${data.url}`;
-                alertBox.className = 'alert alert-success';
+                const detailsHtml = `
+                    <div class="output-details">
+                        <div class="output-item" style="border-left: 4px solid var(--success);">
+                            <span class="title">Updated Destination URL</span>
+                            <span class="value">${data.url}</span>
+                        </div>
+                        <div class="output-item">
+                            <span class="title">Short Code</span>
+                            <span class="value">${data.shortCode}</span>
+                        </div>
+                    </div>
+                `;
+                renderOutput(`Update Short URL (PUT /shorten/${code})`, 200, 'OK', data, detailsHtml);
             } else {
-                alertBox.textContent = data.message || 'Failed to update short URL';
-                alertBox.className = 'alert alert-danger';
+                renderOutput(`Update Short URL (PUT /shorten/${code})`, response.status, 'Error', data);
             }
         } catch (err) {
-            alertBox.textContent = 'Error updating URL: ' + err.message;
-            alertBox.className = 'alert alert-danger';
+            renderOutput('Update Short URL', 500, 'Error', { error: err.message });
         }
     });
 
-    // Delete URL Click
+    // 4. Delete URL Click
     document.getElementById('btnDelete').addEventListener('click', async () => {
-        const code = document.getElementById('manageCode').value.trim();
-        const alertBox = document.getElementById('manageAlert');
-        alertBox.className = 'alert';
-        alertBox.style.display = 'none';
+        const code = document.getElementById('inputManageCode').value.trim();
 
         if (!code) {
-            alertBox.textContent = 'Please provide short code to delete.';
-            alertBox.className = 'alert alert-danger';
+            alert('Please enter Target Short Code to delete.');
             return;
         }
 
@@ -457,16 +507,21 @@
             });
 
             if (response.status === 204) {
-                alertBox.textContent = `Short code '${code}' deleted successfully.`;
-                alertBox.className = 'alert alert-success';
+                const detailsHtml = `
+                    <div class="output-details">
+                        <div class="output-item" style="border-left: 4px solid var(--danger);">
+                            <span class="title">Status</span>
+                            <span class="value" style="color: var(--danger);">Short Code '${code}' deleted successfully.</span>
+                        </div>
+                    </div>
+                `;
+                renderOutput(`Delete Short URL (DELETE /shorten/${code})`, 204, 'No Content', { message: `Short code '${code}' deleted` }, detailsHtml);
             } else {
                 const data = await response.json().catch(() => ({}));
-                alertBox.textContent = data.message || 'Failed to delete short URL (not found)';
-                alertBox.className = 'alert alert-danger';
+                renderOutput(`Delete Short URL (DELETE /shorten/${code})`, response.status, 'Not Found', data);
             }
         } catch (err) {
-            alertBox.textContent = 'Error deleting URL: ' + err.message;
-            alertBox.className = 'alert alert-danger';
+            renderOutput('Delete Short URL', 500, 'Error', { error: err.message });
         }
     });
 </script>
