@@ -1,5 +1,6 @@
 # Spring Boot URL Shortener Backend
 
+**Project Page URL**: https://roadmap.sh/projects/url-shortening-service  
 **Project Repository URL**: https://github.com/Prutwi17/url-shortener
 
 A clean, lightweight, production-ready RESTful URL Shortener backend API built with Java 17 and Spring Boot 3.3.5.
