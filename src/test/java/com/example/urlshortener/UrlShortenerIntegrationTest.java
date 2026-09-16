@@ -112,4 +112,10 @@ class UrlShortenerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("URL Shortener")));
     }
+
+    @Test
+    void testRootUrlServesIndex() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk());
+    }
 }
